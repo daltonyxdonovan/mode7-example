@@ -1,16 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <cmath>
 
-const float M_PI = 3.14159265358979323846f;
-
-const int screenWidth = 400;
-const int screenHeight = 400;
-const float playerSpeed = 0.01f;
-const float rotationSpeed = 0.1f;
-const float nearPlane = 0.1f;
-const float farPlane = 1000.0f;
-const float fieldOfView = 90.0f;
-
 struct Player
 {
     float x, y;
@@ -19,13 +9,24 @@ struct Player
 
 Player player = {200.0f, 200.0f, 0.0f};
 
+const int screenWidth = 400;
+const int screenHeight = 400;
+int mapSize = 1024;
+
+const float playerSpeed = 0.01f;
+const float rotationSpeed = 0.1f;
+const float nearPlane = 0.1f;
+const float farPlane = 1000.0f;
+const float fieldOfView = 90.0f;
+const float M_PI = 3.14159265358979323846f;
+
 float fWorldX = player.x;
 float fWorldY = player.y;
 float fWorldA = player.angle;
 float fNear = 0.005f;
 float fFar = 0.03f;
 float fFoVHalf = 3.14159f / 4.0f;
-int mapSize = 1024;
+
 sf::Image image;
 sf::RectangleShape pixel(sf::Vector2f(1, 1));
 
@@ -45,7 +46,7 @@ void Update(sf::Texture &floorTexture, sf::RenderWindow &window, sf::Image &imag
     float fNearX2 = fWorldX + cosf(fWorldA + fFoVHalf) * fNear;
     float fNearY2 = fWorldY + sinf(fWorldA + fFoVHalf) * fNear;
 
-    sf::Color col; // Reusable sf::Color object
+    sf::Color col;
 
     // Precalculate trigonometric values for the player's angle
     float cosA = std::cos(player.angle);
@@ -110,9 +111,8 @@ int main()
             }
         }
 
-        // Update player position based on angle and speed
-        float cosA = std::cos(player.angle * M_PI / 180.0f);
-        float sinA = std::sin(player.angle * M_PI / 180.0f);
+        float cosA = std::cos(player.angle);
+        float sinA = std::sin(player.angle);
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
         {
@@ -121,9 +121,10 @@ int main()
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
         {
-            player.x -= std::cos(player.angle * M_PI / 180.0f) * playerSpeed;
-            player.y -= std::sin(player.angle * M_PI / 180.0f) * playerSpeed;
+            player.x -= cosA * playerSpeed;
+            player.y -= sinA * playerSpeed;
         }
+
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
         {
             player.angle -= rotationSpeed;
