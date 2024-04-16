@@ -98,11 +98,28 @@ int main()
 {
     sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "Mode 7 Implementation");
     sf::Texture floorTexture;
-    floorTexture.loadFromFile("floor_texture.png");
+    floorTexture.loadFromFile("resources/maps/map.png");
+    sf::Font font;
+    font.loadFromFile("resources/fonts/monospace.ttf");
     image = floorTexture.copyToImage();
+    sf::Text infoText;
+    infoText.setFont(font);
+    infoText.setCharacterSize(15);
+    infoText.setFillColor(sf::Color::White);
+    infoText.setPosition(10, 10);
+    infoText.setString("WASD - Movement\nSpacebar - Ascend\nLeft Shift - Descend\nEscape - Quit");
+    sf::Text fpsText;
+    fpsText.setFont(font);
+    fpsText.setCharacterSize(15);
+    fpsText.setFillColor(sf::Color::White);
+    fpsText.setPosition(screenWidth - 20, 10);
+    fpsText.setString("FPS: 0");
+    fpsText.setOrigin(fpsText.getLocalBounds().width, 0);
+    sf::Clock clock;
 
     while (window.isOpen())
     {
+        fpsText.setString("FPS: " + std::to_string((int)(1.0f / clock.restart().asSeconds())));
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -161,6 +178,8 @@ int main()
         window.clear(sf::Color::Black);
 
         Update(floorTexture, window, image);
+        window.draw(infoText);
+        window.draw(fpsText);
         window.display();
     }
 
