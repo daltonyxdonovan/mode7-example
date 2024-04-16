@@ -9,8 +9,8 @@ struct Player
 
 Player player = {200.0f, 200.0f, 0.0f};
 
-const int screenWidth = 1920;
-const int screenHeight = 1080;
+const int screenWidth = 1280;
+const int screenHeight = 720;
 int mapSize = 1024;
 
 const float playerSpeed = 0.01f;
@@ -96,7 +96,7 @@ void Update(sf::Texture &floorTexture, sf::RenderWindow &window, sf::Image &imag
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "Mode 7 Implementation", sf::Style::Fullscreen);
+    sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "Mode 7 Implementation");
     sf::Texture floorTexture;
     floorTexture.loadFromFile("floor_texture.png");
     image = floorTexture.copyToImage();
@@ -144,12 +144,12 @@ int main()
         }
 
         // if up arrow is pressed
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
         {
             fFar += 0.01f;
         }
         // if down arrow is pressed
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
         {
             fFar -= 0.01f;
         }
