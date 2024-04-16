@@ -9,30 +9,30 @@ struct Player
 
 Player player = {200.0f, 200.0f, 0.0f};
 
-const int screenWidth = 400;
-const int screenHeight = 400;
+const int screenWidth = 1920;
+const int screenHeight = 1080;
 int mapSize = 1024;
 
 const float playerSpeed = 0.01f;
 const float rotationSpeed = 0.1f;
 const float nearPlane = 0.1f;
 const float farPlane = 1000.0f;
-const float fieldOfView = 90.0f;
+const float fieldOfView = 120.0f;
 const float M_PI = 3.14159265358979323846f;
 
 float fWorldX = player.x;
 float fWorldY = player.y;
 float fWorldA = player.angle;
 float fNear = 0.005f;
-float fFar = 0.03f;
-float fFoVHalf = 3.14159f / 4.0f;
+float fFar = 0.05f;
+float fFoVHalf = M_PI / 4.0f;
+
+sf::VertexArray vertices(sf::Points, screenWidth *screenHeight);
 
 sf::Image image;
-sf::RectangleShape pixel(sf::Vector2f(1, 1));
 
 void Update(sf::Texture &floorTexture, sf::RenderWindow &window, sf::Image &image)
 {
-
     // Create Frustum corner points
     float fFarX1 = fWorldX + cosf(fWorldA - fFoVHalf) * fFar;
     float fFarY1 = fWorldY + sinf(fWorldA - fFoVHalf) * fFar;
@@ -46,8 +46,6 @@ void Update(sf::Texture &floorTexture, sf::RenderWindow &window, sf::Image &imag
     float fNearX2 = fWorldX + cosf(fWorldA + fFoVHalf) * fNear;
     float fNearY2 = fWorldY + sinf(fWorldA + fFoVHalf) * fNear;
 
-    sf::Color col;
-
     // Precalculate trigonometric values for the player's angle
     float cosA = std::cos(player.angle);
     float sinA = std::sin(player.angle);
@@ -57,6 +55,8 @@ void Update(sf::Texture &floorTexture, sf::RenderWindow &window, sf::Image &imag
     float diffY1 = fFarY1 - fNearY1;
     float diffX2 = fFarX2 - fNearX2;
     float diffY2 = fFarY2 - fNearY2;
+
+    int index = 0; // Index for the vertex array
 
     // Starting with furthest away line and work towards the camera point
     for (int y = 0; y < screenHeight / 2; y++)
@@ -81,23 +81,24 @@ void Update(sf::Texture &floorTexture, sf::RenderWindow &window, sf::Image &imag
             fSampleX = fmod(fSampleX, 1.0f);
             fSampleY = fmod(fSampleY, 1.0f);
 
-            // Update the existing color object
-            col = image.getPixel(fSampleX * floorTexture.getSize().x, fSampleY * floorTexture.getSize().y);
-
-            pixel.setPosition(x, y + (screenHeight / 2));
-            pixel.setFillColor(col);
-            window.draw(pixel);
+            // Update the vertex position
+            vertices[index].position = sf::Vector2f(x, y + (screenHeight / 2));
+            vertices[index].texCoords =
+                sf::Vector2f(fSampleX * floorTexture.getSize().x, fSampleY * floorTexture.getSize().y);
+            index++;
         }
     }
+
+    sf::RenderStates states;
+    states.texture = &floorTexture;
+    window.draw(vertices, states);
 }
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "Mode 7 Implementation");
+    sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "Mode 7 Implementation", sf::Style::Fullscreen);
     sf::Texture floorTexture;
-    sf::Sprite floorSprite;
     floorTexture.loadFromFile("floor_texture.png");
-    floorSprite.setTexture(floorTexture);
     image = floorTexture.copyToImage();
 
     while (window.isOpen())
@@ -108,6 +109,14 @@ int main()
             if (event.type == sf::Event::Closed)
             {
                 window.close();
+            }
+
+            if (event.type == sf::Event::KeyPressed)
+            {
+                if (event.key.code == sf::Keyboard::Escape)
+                {
+                    window.close();
+                }
             }
         }
 
@@ -132,6 +141,17 @@ int main()
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
         {
             player.angle += rotationSpeed;
+        }
+
+        // if up arrow is pressed
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+        {
+            fFar += 0.01f;
+        }
+        // if down arrow is pressed
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+        {
+            fFar -= 0.01f;
         }
 
         fWorldX = player.x;
